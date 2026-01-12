@@ -1,3 +1,4 @@
-1. change BackGround pvs
-2. Store the pv as local storage
-3. Covert to react?
+1. implement cache on the video (cdn?)
+2. change BackGround pvs
+3. Store the pv as local storage
+4. Covert to react?
