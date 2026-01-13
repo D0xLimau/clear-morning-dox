@@ -6,6 +6,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="preconnect" href="https://google.com" />
         <link rel="preconnect" href="https://search.saltyaom.com" />
+        <link rel="preload" href="./ba_pv1.mp4" as="video" />
+        <link rel="preload" href="./ba_pv3.mp4" as="video" />
         <link rel="preload" href="./ba_pv5.mp4" as="video" />
 
         <link
@@ -57,6 +59,7 @@
             #bg {
                 object-fit: cover;
                 object-position: center;
+                transition: opacity 0.5s ease;
             }
 
             #overlay {
@@ -353,6 +356,111 @@
 
             #weather-icon > svg {
                 padding: 0.125rem;
+            }
+
+            /* --- Dropdown Container --- */
+            .glass-select-container {
+                position: absolute;
+                width: 100%;
+                max-width: 200px; /* Adjust width as needed */
+                user-select: none;
+                margin-top: 16px;
+                font-family: inherit;
+            }
+
+            /* -- The Trigger (The Box) --- */
+            .glass-select-trigger {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                height: 56px;
+                padding: 0 24px;
+                font-size: 21px;
+                color: #fff;
+                cursor: pointer;
+    
+            /* The Glass Style */
+                background-color: rgba(0, 0, 0, 0.1);
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+                border: 1px solid rgba(255, 255, 255, 0.25);
+                border-radius: 24px;
+                transition: all 0.2s ease;
+            }
+
+            .glass-select-trigger:hover {
+                background-color: rgba(255, 255, 255, 0.15);
+                border-color: #fff;
+            }
+
+            /* --- The Arrow --- */
+            .arrow {
+                width: 10px;
+                height: 10px;
+                border-right: 2px solid #fff;
+                border-bottom: 2px solid #fff;
+                transform: rotate(45deg);
+                transition: transform 0.2s;
+                margin-bottom: 4px;
+            }
+
+            /* Rotate arrow when open */
+            .glass-select-container.open .arrow {
+                transform: rotate(225deg);
+                margin-bottom: -4px;
+            }
+
+            /* --- The Options List (Hidden by default) --- */
+            .glass-options {
+                position: absolute;
+                top: 110%; /* Just below the trigger */
+                left: 0;
+                right: 0;
+                z-index: 99; /* Float above other content */
+    
+            /* Glass Style for List */
+                background-color: rgba(0, 0, 0, 0.25); /* Slightly darker for readability */
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                border-radius: 16px;
+                overflow: hidden;
+    
+            /* Animation State: Hidden */
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(-10px);
+                transition: all 0.2s ease;
+            }
+
+            /* Show options when container has 'open' class */
+            .glass-select-container.open .glass-options {
+                opacity: 1;
+                visibility: visible;
+                transform: translateY(0);
+            }
+
+            /* --- Individual Option --- */
+            .glass-option {
+                padding: 12px 24px;
+                color: #fff;
+                font-size: 18px;
+                cursor: pointer;
+                transition: background 0.2s;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            }
+
+            .glass-option:last-child {
+                border-bottom: none;
+            }
+
+            .glass-option:hover {
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+
+            .glass-option.selected {
+                font-weight: bold;
+                background-color: rgba(255, 255, 255, 0.1);
             }
         </style>
         <script>
@@ -876,6 +984,92 @@
 
                 displayWeather()
             }
+
+            document.addEventListener('DOMContentLoaded', () => {
+            // 1. Select Elements
+            const container = document.querySelector('.glass-select-container');
+            const trigger = document.getElementById('dropdownTrigger');
+            const displayValue = document.getElementById('selectedValue');
+            const options = document.querySelectorAll('.glass-option');
+            const bgVideo = document.getElementById('bg');
+
+            // --- LOCAL STORAGE LOGIC: LOAD SAVED THEME ---
+            // Check if the user has a saved preference
+            const savedVideo = localStorage.getItem('site_theme_video');
+            const savedText = localStorage.getItem('site_theme_text');
+
+            if (savedVideo && savedText) {
+                // A. Apply the saved text to the dropdown button
+                displayValue.textContent = savedText;
+
+                // B. Set the saved video immediately
+                bgVideo.src = savedVideo;
+        
+                // C. Highlight the correct option in the list
+                options.forEach(opt => {
+                    if (opt.getAttribute('data-video') === savedVideo) {
+                        opt.classList.add('selected');
+                    } else {
+                        opt.classList.remove('selected');
+                }
+            });
+        }
+
+                // 2. Toggle Dropdown Open/Close
+                 trigger.addEventListener('click', (e) => {
+                container.classList.toggle('open');
+                 e.stopPropagation(); 
+                 });
+
+    // 3. Handle Option Click
+    options.forEach(option => {
+        option.addEventListener('click', function() {
+            // Get data from clicked option
+            const textContent = this.textContent.trim();
+            const videoPath = this.getAttribute('data-video');
+
+            // Update UI Text
+            displayValue.textContent = textContent;
+            
+            // Visual Selection: Remove 'selected' from all, add to clicked
+            options.forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
+
+            // --- LOCAL STORAGE LOGIC: SAVE SELECTION ---
+            // Save the path and the text so we can load it next time
+            localStorage.setItem('site_theme_video', videoPath);
+            localStorage.setItem('site_theme_text', textContent);
+            // -------------------------------------------
+
+            // Change Video Logic
+            if (videoPath) {
+                // Fade out
+                bgVideo.style.opacity = '0';
+
+                setTimeout(() => {
+                    bgVideo.src = videoPath;
+                    bgVideo.load();
+                    
+                    bgVideo.onloadeddata = () => {
+                        bgVideo.play();
+                        bgVideo.style.opacity = '1';
+                    };
+                }, 300); 
+            }
+
+            // Close Dropdown
+            container.classList.remove('open');
+        });
+    });
+
+    // 4. Close Dropdown if clicking outside
+    document.addEventListener('click', (e) => {
+        if (!container.contains(e.target)) {
+            container.classList.remove('open');
+        }
+    });
+});
+
         </script>
     </head>
     <template id="t-suggest">
@@ -998,10 +1192,29 @@
 
     <body id="opened">
         <div id="overlay"></div>
-        <video id="bg" preload="auto" muted loop autoplay disablepictureinpicture>
+        <video id="bg" preload="auto" autoplay muted loop disablepictureinpicture>
             <source src="./ba_pv5.mp4" />
         </video>
+        <div class="glass-select-container">
+            <div class="glass-select-trigger" id="dropdownTrigger">
+                <span id="selectedValue">Pick a Theme</span>
+                <div class="arrow"></div>
+            </div>
+    
+            <div class="glass-options" id="dropdownOptions">
+                <div class="glass-option" data-video="./ba_pv1.mp4">
+                    1st PV
+                </div>
+                <div class="glass-option" data-video="./ba_pv3.mp4">
+                    3rd PV
+                </div>
+                <div class="glass-option" data-video="./ba_pv5.mp4">
+                    5th PV
+                </div>
+            </div>
+        </div>
         <main id="app">
+
             <h1 id="time">
                 <span id="hour">9</span>:<span id="minute">41</span>
             </h1>
@@ -1192,6 +1405,20 @@
                                 d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/>
                         </svg>
                     </a>
+                    <a href="https://discord.com/">
+                        <svg 
+                            xmlns="http://www.w3.org/2000/svg"
+                            shape-rendering="geometricPrecision"
+                            text-rendering="geometricPrecision"
+                            image-rendering="optimizeQuality"
+                            fill-rule="evenodd"
+                            clip-rule="evenodd"
+                            viewBox="0 0 512 365.467"
+                        >
+                            <path 
+                                fill="#fff" 
+                                d="M378.186 365.028s-15.794-18.865-28.956-35.099c57.473-16.232 79.41-51.77 79.41-51.77-17.989 11.846-35.099 20.182-50.454 25.885-21.938 9.213-42.997 14.917-63.617 18.866-42.118 7.898-80.726 5.703-113.631-.438-25.008-4.827-46.506-11.407-64.494-18.867-10.091-3.947-21.059-8.774-32.027-14.917-1.316-.877-2.633-1.316-3.948-2.193-.877-.438-1.316-.878-1.755-.878-7.898-4.388-12.285-7.458-12.285-7.458s21.06 34.659 76.779 51.331c-13.163 16.673-29.395 35.977-29.395 35.977C36.854 362.395 0 299.218 0 299.218 0 159.263 63.177 45.633 63.177 45.633 126.354-1.311 186.022.005 186.022.005l4.388 5.264C111.439 27.645 75.461 62.305 75.461 62.305s9.653-5.265 25.886-12.285c46.945-20.621 84.236-25.885 99.592-27.64 2.633-.439 4.827-.878 7.458-.878 26.763-3.51 57.036-4.387 88.624-.878 41.68 4.826 86.43 17.111 132.058 41.68 0 0-34.66-32.906-109.244-55.281l6.143-7.019s60.105-1.317 122.844 45.628c0 0 63.178 113.631 63.178 253.585 0-.438-36.854 62.739-133.813 65.81l-.001.001zm-43.874-203.133c-25.006 0-44.75 21.498-44.75 48.262 0 26.763 20.182 48.26 44.75 48.26 25.008 0 44.752-21.497 44.752-48.26 0-26.764-20.182-48.262-44.752-48.262zm-160.135 0c-25.008 0-44.751 21.498-44.751 48.262 0 26.763 20.182 48.26 44.751 48.26 25.007 0 44.75-21.497 44.75-48.26.439-26.763-19.742-48.262-44.75-48.262z"/>
+                        </svg>
                 </section>
             </div>
         </main>
