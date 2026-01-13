@@ -1,4 +1,6 @@
-1. implement cache on the video (cdn?)
-2. change BackGround pvs
-3. Store the pv as local storage
-4. Covert to react?
+1. implement cache on the video (cdn?) (done?)
+2. change BackGround pvs (done)
+3. Store the pv as local storage (done)
+4. Convert all pv to jp
+5. allow shuffle pvs?
+99+. Covert to react?
