@@ -1,6 +1,7 @@
-1. implement cache on the video (cdn?) (done?)
+1. implement cache on the video (cdn?) (done?) (pv5 still having some issues)
 2. change BackGround pvs (done)
 3. Store the pv as local storage (done)
-4. Convert all pv to jp
-5. allow shuffle pvs?
+4. Convert all pv to jp (done)
+5. allow un-corrupted pvs cuttings (refers game title for inspiration)
+6. allow shuffle pvs?
 99+. Covert to react?
