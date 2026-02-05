@@ -2,15 +2,15 @@
 <html lang="en">
     <head>
         <title>New Tab</title>
-        <meta charset="utf8" />
+        <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="preconnect" href="https://google.com" />
         <link rel="preconnect" href="https://search.saltyaom.com" />
-        <link rel="preload" href="./ba_pv1.mp4" as="video" />
-        <link rel="preload" href="./ba_pv2.mp4" as="video" />
-        <link rel="preload" href="./ba_pv3.mp4" as="video" />
-        <link rel="preload" href="./ba_pv4.mp4" as="video" />
-        <link rel="preload" href="./ba_pv5.mp4" as="video" />
+        <link rel="preload" href="pvs/ba_pv1.mp4" as="video" />
+        <link rel="preload" href="pvs/ba_pv2.mp4" as="video" />
+        <link rel="preload" href="pvs/ba_pv3.mp4" as="video" />
+        <link rel="preload" href="pvs/ba_pv4.mp4" as="video" />
+        <link rel="preload" href="pvs/ba_pv5.mp4" as="video" />
 
         <link
             rel="icon"
@@ -485,7 +485,16 @@
                         }
                         return null
                     },
-                    link: (search) => `https:${search}`,
+                    <!-- link: (search) => `https:${search}`, -->
+                    link: (search) => {
+                        if (linkProviders[0].match(search).startsWith('//'))
+                            return `http:${search}`
+
+                        if (/^[a-zA-Z][a-zA-Z0-9+\-.]*:/.test(search))
+                            return search
+
+                        return `https:${search}`
+                    },
                     icon: () =>
                         `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" class="icon"><path d="M0 256C0 209.4 12.5 165.6 34.3 127.1L144.1 318.3C166 357.5 207.9 384 256 384C270.3 384 283.1 381.7 296.8 377.4L220.5 509.6C95.9 492.3 0 385.3 0 256zM365.1 321.6C377.4 302.4 384 279.1 384 256C384 217.8 367.2 183.5 340.7 160H493.4C505.4 189.6 512 222.1 512 256C512 397.4 397.4 511.1 256 512L365.1 321.6zM477.8 128H256C193.1 128 142.3 172.1 130.5 230.7L54.2 98.5C101 38.5 174 0 256 0C350.8 0 433.5 51.5 477.8 128V128zM168 256C168 207.4 207.4 168 256 168C304.6 168 344 207.4 344 256C344 304.6 304.6 344 256 344C207.4 344 168 304.6 168 256z"/></svg>`
                 },
@@ -1195,7 +1204,7 @@
     <body id="opened">
         <div id="overlay"></div>
         <video id="bg" autoplay muted loop disablepictureinpicture>
-            <source src="./ba_pv5.mp4" />
+            <source src="pvs/ba_pv5.mp4" />
         </video>
         <div class="glass-select-container">
             <div class="glass-select-trigger" id="dropdownTrigger">
@@ -1204,19 +1213,19 @@
             </div>
     
             <div class="glass-options" id="dropdownOptions">
-                <div class="glass-option" data-video="./ba_pv1.mp4">
+                <div class="glass-option" data-video="pvs/ba_pv1.mp4">
                     1st PV
                 </div>
-                <div class="glass-option" data-video="./ba_pv2.mp4">
+                <div class="glass-option" data-video="pvs/ba_pv2.mp4">
                     2nd PV
                 </div>
-                <div class="glass-option" data-video="./ba_pv3.mp4">
+                <div class="glass-option" data-video="pvs/ba_pv3.mp4">
                     3rd PV
                 </div>
-                <div class="glass-option" data-video="./ba_pv4.mp4">
+                <div class="glass-option" data-video="pvs/ba_pv4.mp4">
                     4th PV
                 </div>
-                <div class="glass-option" data-video="./ba_pv5.mp4">
+                <div class="glass-option" data-video="pvs/ba_pv5.mp4">
                     5th PV
                 </div>
             </div>
@@ -1343,7 +1352,7 @@
                         type="text"
                         autofocus
                     />
-                    <button id="search-submit" class="submit">
+                    <button id="search-submit" title="search" class="submit">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="24"
@@ -1390,7 +1399,7 @@
                             />
                         </svg>
                     </a>
-                    <a href="https://github.com">
+                    <a href="https://github.com" title="github">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 496 512"
@@ -1402,7 +1411,7 @@
                             />
                         </svg>
                     </a>
-                    <a href="https://web.whatsapp.com">
+                    <a href="https://web.whatsapp.com" title="whatsapp">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 16 16"
@@ -1413,7 +1422,7 @@
                                 d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/>
                         </svg>
                     </a>
-                    <a href="https://discord.com/channels/@me/">
+                    <a href="https://discord.com/channels/@me/" title="discord">
                         <svg 
                             xmlns="http://www.w3.org/2000/svg"
                             shape-rendering="geometricPrecision"
